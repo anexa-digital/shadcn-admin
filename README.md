@@ -65,3 +65,47 @@ Crafted with 🤍 by [@satnaing](https://github.com/satnaing)
 ## License
 
 Licensed under the [MIT License](https://choosealicense.com/licenses/mit/)
+
+## Authentication with Clerk
+
+This project uses [Clerk](https://clerk.com) for authentication. Clerk provides a complete user management platform with features like:
+
+- Email/password authentication
+- Social login (GitHub, Facebook, etc.)
+- Multi-factor authentication
+- Email verification
+- Account management
+
+### Setup Clerk
+
+1. Create a Clerk account at [https://clerk.com](https://clerk.com)
+2. Create a new application in the Clerk dashboard
+3. Configure your authentication methods (email/password, social logins, etc.)
+4. Get your API keys from the Clerk dashboard
+5. Create a `.env` file in the root directory with the following variables:
+
+```
+VITE_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
+```
+
+### Authentication Flow
+
+The application integrates Clerk with the existing auth flow:
+
+1. Users can sign in/sign up using the existing UI
+2. Clerk handles the authentication process
+3. Upon successful authentication, Clerk generates a JWT token
+4. The token is stored in the existing auth store for use with your API
+5. Protected routes check both Clerk's authentication state and the auth store
+
+### Components
+
+Several components have been added/modified to support Clerk:
+
+- `ClerkAuthProvider`: Wraps the application with Clerk's context
+- `ProtectedRoute`: A component that ensures routes are only accessible to authenticated users
+- `UserButton`: A customized version of Clerk's UserButton for user account management
+
+### Custom Hook
+
+The `useClerkAuth` hook synchronizes Clerk's authentication state with the existing auth store, ensuring both systems work together seamlessly.

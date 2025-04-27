@@ -13,6 +13,8 @@
     "knip": "knip"
   },
   "dependencies": {
+    "@clerk/clerk-react": "^5.30.0",
+    "@clerk/themes": "^2.2.36",
     "@hookform/resolvers": "^5.0.1",
     "@radix-ui/react-alert-dialog": "^1.1.7",
     "@radix-ui/react-avatar": "^1.1.4",

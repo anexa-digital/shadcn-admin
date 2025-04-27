@@ -2,8 +2,10 @@ import { HTMLAttributes, useState } from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Link } from '@tanstack/react-router'
-import { IconBrandFacebook, IconBrandGithub } from '@tabler/icons-react'
+import { Link, useNavigate } from '@tanstack/react-router'
+import { IconBrandFacebook, IconBrandGithub, IconBrandGoogle } from '@tabler/icons-react'
+import { useSignIn } from '@clerk/clerk-react'
+import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
@@ -20,39 +22,77 @@ import { PasswordInput } from '@/components/password-input'
 type UserAuthFormProps = HTMLAttributes<HTMLFormElement>
 
 const formSchema = z.object({
-  email: z
-    .string()
-    .min(1, { message: 'Please enter your email' })
-    .email({ message: 'Invalid email address' }),
-  password: z
-    .string()
-    .min(1, {
-      message: 'Please enter your password',
-    })
-    .min(7, {
-      message: 'Password must be at least 7 characters long',
-    }),
+  email: z.string().email({ message: 'Please enter a valid email address.' }),
+  password: z.string().min(8, { message: 'Password must be at least 8 characters.' }),
 })
 
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   const [isLoading, setIsLoading] = useState(false)
+  const { signIn, setActive } = useSignIn()
+  const navigate = useNavigate()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-    },
+    defaultValues: { email: '', password: '' },
   })
 
-  function onSubmit(data: z.infer<typeof formSchema>) {
-    setIsLoading(true)
-    // eslint-disable-next-line no-console
-    console.log(data)
+  async function onSubmit(data: z.infer<typeof formSchema>) {
+    try {
+      setIsLoading(true)
+      
+      if (!signIn) {
+        toast.error('Authentication service is not available')
+        setIsLoading(false)
+        return
+      }
+      
+      // Start the sign-in process using Clerk
+      const result = await signIn.create({
+        identifier: data.email,
+        password: data.password,
+      })
 
-    setTimeout(() => {
+      if (result.status === 'complete') {
+        // Sign-in successful
+        await setActive({ session: result.createdSessionId })
+        toast.success('Signed in successfully')
+        navigate({ to: '/' })
+      } else {
+        // User needs to complete additional steps
+        console.log(result)
+        
+        // Handle specific cases - like OTP verification if needed
+        if (result.status === 'needs_second_factor') {
+          navigate({ to: '/otp' })
+        }
+      }
+    } catch (error: any) {
+      console.error('Error signing in:', error)
+      toast.error(error.errors?.[0]?.message || 'An error occurred during sign-in')
+    } finally {
       setIsLoading(false)
-    }, 3000)
+    }
+  }
+
+  const handleOAuthSignIn = async (provider: 'oauth_github' | 'oauth_facebook' | 'oauth_google') => {
+    try {
+      if (!signIn) {
+        toast.error('Authentication service is not available')
+        return
+      }
+      
+      setIsLoading(true)
+      // Start OAuth flow
+      await signIn.authenticateWithRedirect({
+        strategy: provider,
+        redirectUrl: `${window.location.origin}/sso-callback`,
+        redirectUrlComplete: `${window.location.origin}/`,
+      })
+    } catch (error: any) {
+      console.error(`Error signing in with ${provider}:`, error)
+      toast.error(error.errors?.[0]?.message || `An error occurred during ${provider} sign-in`)
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -109,11 +149,29 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
           </div>
         </div>
 
-        <div className='grid grid-cols-2 gap-2'>
-          <Button variant='outline' type='button' disabled={isLoading}>
+        <div className='grid grid-cols-3 gap-3'>
+          <Button 
+            variant='outline' 
+            type='button' 
+            disabled={isLoading}
+            onClick={() => handleOAuthSignIn('oauth_google')}
+          >
+            <IconBrandGoogle className='h-4 w-4' /> Google
+          </Button>
+          <Button 
+            variant='outline' 
+            type='button' 
+            disabled={isLoading}
+            onClick={() => handleOAuthSignIn('oauth_github')}
+          >
             <IconBrandGithub className='h-4 w-4' /> GitHub
           </Button>
-          <Button variant='outline' type='button' disabled={isLoading}>
+          <Button 
+            variant='outline' 
+            type='button' 
+            disabled={isLoading}
+            onClick={() => handleOAuthSignIn('oauth_facebook')}
+          >
             <IconBrandFacebook className='h-4 w-4' /> Facebook
           </Button>
         </div>

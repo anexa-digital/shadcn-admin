@@ -2,7 +2,10 @@ import { HTMLAttributes, useState } from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { IconBrandFacebook, IconBrandGithub } from '@tabler/icons-react'
+import { IconBrandFacebook, IconBrandGithub, IconBrandGoogle } from '@tabler/icons-react'
+import { useSignUp } from '@clerk/clerk-react'
+import { toast } from 'sonner'
+import { useNavigate } from '@tanstack/react-router'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
@@ -18,47 +21,88 @@ import { PasswordInput } from '@/components/password-input'
 
 type SignUpFormProps = HTMLAttributes<HTMLFormElement>
 
-const formSchema = z
-  .object({
-    email: z
-      .string()
-      .min(1, { message: 'Please enter your email' })
-      .email({ message: 'Invalid email address' }),
-    password: z
-      .string()
-      .min(1, {
-        message: 'Please enter your password',
-      })
-      .min(7, {
-        message: 'Password must be at least 7 characters long',
-      }),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match.",
-    path: ['confirmPassword'],
-  })
+const formSchema = z.object({
+  firstName: z.string().min(1, { message: 'First name is required' }),
+  lastName: z.string().min(1, { message: 'Last name is required' }),
+  email: z.string().email({ message: 'Please enter a valid email address' }),
+  password: z.string().min(8, { message: 'Password must be at least 8 characters' }),
+})
 
 export function SignUpForm({ className, ...props }: SignUpFormProps) {
   const [isLoading, setIsLoading] = useState(false)
+  const { signUp, setActive } = useSignUp()
+  const navigate = useNavigate()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      firstName: '',
+      lastName: '',
       email: '',
       password: '',
-      confirmPassword: '',
     },
   })
 
-  function onSubmit(data: z.infer<typeof formSchema>) {
-    setIsLoading(true)
-    // eslint-disable-next-line no-console
-    console.log(data)
+  async function onSubmit(data: z.infer<typeof formSchema>) {
+    try {
+      setIsLoading(true)
+      
+      if (!signUp) {
+        toast.error('Authentication service is not available')
+        setIsLoading(false)
+        return
+      }
+      
+      // Create the user with Clerk
+      const result = await signUp.create({
+        firstName: data.firstName,
+        lastName: data.lastName,
+        emailAddress: data.email,
+        password: data.password,
+      })
 
-    setTimeout(() => {
+      // Start email verification
+      await signUp.prepareEmailAddressVerification({
+        strategy: 'email_code',
+      })
+      
+      if (result.status === 'complete') {
+        // Sign-up successful and complete
+        await setActive({ session: result.createdSessionId })
+        toast.success('Account created successfully')
+        navigate({ to: '/' })
+      } else {
+        // User needs to verify their email
+        toast.info('Please verify your email address')
+        navigate({ to: '/otp' })
+      }
+    } catch (error: any) {
+      console.error('Error signing up:', error)
+      toast.error(error.errors?.[0]?.message || 'An error occurred during sign-up')
+    } finally {
       setIsLoading(false)
-    }, 3000)
+    }
+  }
+
+  const handleOAuthSignUp = async (provider: 'oauth_github' | 'oauth_facebook' | 'oauth_google') => {
+    try {
+      if (!signUp) {
+        toast.error('Authentication service is not available')
+        return
+      }
+      
+      setIsLoading(true)
+      // Start OAuth flow
+      await signUp.authenticateWithRedirect({
+        strategy: provider,
+        redirectUrl: `${window.location.origin}/sso-callback`,
+        redirectUrlComplete: `${window.location.origin}/`,
+      })
+    } catch (error: any) {
+      console.error(`Error signing up with ${provider}:`, error)
+      toast.error(error.errors?.[0]?.message || `An error occurred during ${provider} sign-up`)
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -68,6 +112,35 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
         className={cn('grid gap-3', className)}
         {...props}
       >
+        <div className="grid grid-cols-2 gap-3">
+          <FormField
+            control={form.control}
+            name='firstName'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>First Name</FormLabel>
+                <FormControl>
+                  <Input placeholder='John' {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name='lastName'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Last Name</FormLabel>
+                <FormControl>
+                  <Input placeholder='Doe' {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        
         <FormField
           control={form.control}
           name='email'
@@ -75,12 +148,13 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder='name@example.com' {...field} />
+                <Input placeholder='name@example.com' type="email" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
+        
         <FormField
           control={form.control}
           name='password'
@@ -88,25 +162,13 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <PasswordInput placeholder='********' {...field} />
+                <PasswordInput placeholder='Create a password' {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name='confirmPassword'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Confirm Password</FormLabel>
-              <FormControl>
-                <PasswordInput placeholder='********' {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        
         <Button className='mt-2' disabled={isLoading}>
           Create Account
         </Button>
@@ -122,20 +184,28 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
           </div>
         </div>
 
-        <div className='grid grid-cols-2 gap-2'>
-          <Button
-            variant='outline'
-            className='w-full'
-            type='button'
+        <div className='grid grid-cols-3 gap-3'>
+          <Button 
+            variant='outline' 
+            type='button' 
             disabled={isLoading}
+            onClick={() => handleOAuthSignUp('oauth_google')}
+          >
+            <IconBrandGoogle className='h-4 w-4' /> Google
+          </Button>
+          <Button 
+            variant='outline' 
+            type='button' 
+            disabled={isLoading}
+            onClick={() => handleOAuthSignUp('oauth_github')}
           >
             <IconBrandGithub className='h-4 w-4' /> GitHub
           </Button>
-          <Button
-            variant='outline'
-            className='w-full'
-            type='button'
+          <Button 
+            variant='outline' 
+            type='button' 
             disabled={isLoading}
+            onClick={() => handleOAuthSignUp('oauth_facebook')}
           >
             <IconBrandFacebook className='h-4 w-4' /> Facebook
           </Button>
