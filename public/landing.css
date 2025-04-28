@@ -1,0 +1,174 @@
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(135deg, #fff7f0 0%, #f0e6ff 100%);
+  color: #222;
+}
+.hero {
+  background: url('/omar.jpg') center/cover no-repeat;
+  min-height: 45vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+}
+.hero-content {
+  background: rgba(255,255,255,0.92);
+  padding: 2.5rem 2rem;
+  border-radius: 1.5rem;
+  text-align: center;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+}
+.hero h1 {
+  font-size: 2.5rem;
+  color: #b80000;
+  margin-bottom: 0.5rem;
+  font-weight: 800;
+}
+.subtitle {
+  font-size: 1.2rem;
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+.cta-btn {
+  background: #b80000;
+  color: #fff;
+  padding: 0.9rem 2.2rem;
+  border-radius: 2rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 2px 8px rgba(184,0,0,0.12);
+  transition: background 0.2s;
+  display: inline-block;
+}
+.cta-btn:hover {
+  background: #e63946;
+}
+.cta-btn.grande {
+  font-size: 1.3rem;
+  padding: 1.1rem 2.8rem;
+  margin-top: 1rem;
+}
+main {
+  max-width: 950px;
+  margin: 0 auto;
+  padding: 2.5rem 1.2rem 1.5rem 1.2rem;
+}
+.festival {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 2.5rem;
+}
+.festival-img {
+  width: 320px;
+  border-radius: 1.2rem;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.10);
+}
+.festival h2 {
+  color: #b80000;
+  margin-bottom: 0.5rem;
+}
+.apto {
+  margin-bottom: 2.5rem;
+}
+.apto h2 {
+  color: #b80000;
+  margin-bottom: 1rem;
+}
+.apto-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.2rem;
+}
+.apto-gallery img {
+  width: 100%;
+  border-radius: 0.8rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  object-fit: cover;
+  height: 140px;
+}
+.apto-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 1.08rem;
+}
+.apto-list li {
+  margin-bottom: 0.5rem;
+  padding-left: 1.2rem;
+  position: relative;
+}
+.apto-list li:before {
+  content: '✔';
+  color: #b80000;
+  position: absolute;
+  left: 0;
+}
+.ubicacion {
+  margin-bottom: 2.5rem;
+  text-align: center;
+}
+.ubicacion-img {
+  width: 80%;
+  max-width: 500px;
+  border-radius: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.10);
+}
+.precio {
+  background: #fff0f0;
+  border-radius: 1.2rem;
+  padding: 1.5rem 1rem;
+  text-align: center;
+  margin-bottom: 2.5rem;
+  box-shadow: 0 2px 8px rgba(184,0,0,0.06);
+}
+.precio-impacto {
+  font-size: 2rem;
+  color: #b80000;
+  font-weight: 800;
+  margin: 0.5rem 0 0.7rem 0;
+}
+.precio-impacto span {
+  background: #fff;
+  padding: 0.2rem 0.7rem;
+  border-radius: 1rem;
+  box-shadow: 0 1px 4px rgba(184,0,0,0.10);
+}
+.cta-final {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+footer {
+  background: #b80000;
+  color: #fff;
+  text-align: center;
+  padding: 1.2rem 0 0.7rem 0;
+  border-radius: 1.2rem 1.2rem 0 0;
+  font-size: 1.08rem;
+  margin-top: 2rem;
+}
+footer a {
+  color: #fff;
+  text-decoration: underline;
+}
+@media (max-width: 700px) {
+  .festival {
+    flex-direction: column;
+    text-align: center;
+  }
+  .festival-img {
+    width: 100%;
+    max-width: 350px;
+  }
+  .apto-gallery img {
+    height: 110px;
+  }
+  .ubicacion-img {
+    width: 100%;
+  }
+} 
