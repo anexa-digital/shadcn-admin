@@ -17,6 +17,9 @@ export function useClerkAuth() {
         const token = await getToken()
         
         if (token) {
+          // Log the JWT token to console
+          console.log('JWT Token:', token)
+          
           // Set token in your existing auth store
           setAccessToken(token)
           
