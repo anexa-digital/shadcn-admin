@@ -14,7 +14,7 @@ export function useClerkAuth() {
     const syncAuthState = async () => {
       try {
         // Get JWT token
-        const token = await getToken()
+        const token = await getToken({ template: 'omnipulse' })
         
         if (token) {
           // Log the JWT token to console
