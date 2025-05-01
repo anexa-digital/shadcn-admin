@@ -13,6 +13,10 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedMessagesImport } from './routes/_authenticated/messages'
+import { Route as AuthenticatedDataManagementImport } from './routes/_authenticated/data-management'
+import { Route as AuthenticatedCampaignsImport } from './routes/_authenticated/campaigns'
+import { Route as AuthenticatedAccountsImport } from './routes/_authenticated/accounts'
 import { Route as errors503Import } from './routes/(errors)/503'
 import { Route as errors500Import } from './routes/(errors)/500'
 import { Route as errors404Import } from './routes/(errors)/404'
@@ -47,6 +51,31 @@ const AuthenticatedRouteRoute = AuthenticatedRouteImport.update({
 const AuthenticatedIndexRoute = AuthenticatedIndexImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+
+const AuthenticatedMessagesRoute = AuthenticatedMessagesImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+
+const AuthenticatedDataManagementRoute =
+  AuthenticatedDataManagementImport.update({
+    id: '/data-management',
+    path: '/data-management',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+
+const AuthenticatedCampaignsRoute = AuthenticatedCampaignsImport.update({
+  id: '/campaigns',
+  path: '/campaigns',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+
+const AuthenticatedAccountsRoute = AuthenticatedAccountsImport.update({
+  id: '/accounts',
+  path: '/accounts',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 
@@ -299,6 +328,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof errors503Import
       parentRoute: typeof rootRoute
     }
+    '/_authenticated/accounts': {
+      id: '/_authenticated/accounts'
+      path: '/accounts'
+      fullPath: '/accounts'
+      preLoaderRoute: typeof AuthenticatedAccountsImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
+    '/_authenticated/campaigns': {
+      id: '/_authenticated/campaigns'
+      path: '/campaigns'
+      fullPath: '/campaigns'
+      preLoaderRoute: typeof AuthenticatedCampaignsImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
+    '/_authenticated/data-management': {
+      id: '/_authenticated/data-management'
+      path: '/data-management'
+      fullPath: '/data-management'
+      preLoaderRoute: typeof AuthenticatedDataManagementImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
+    '/_authenticated/messages': {
+      id: '/_authenticated/messages'
+      path: '/messages'
+      fullPath: '/messages'
+      preLoaderRoute: typeof AuthenticatedMessagesImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
     '/_authenticated/': {
       id: '/_authenticated/'
       path: '/'
@@ -406,6 +463,10 @@ const AuthenticatedSettingsRouteRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedSettingsRouteRoute: typeof AuthenticatedSettingsRouteRouteWithChildren
+  AuthenticatedAccountsRoute: typeof AuthenticatedAccountsRoute
+  AuthenticatedCampaignsRoute: typeof AuthenticatedCampaignsRoute
+  AuthenticatedDataManagementRoute: typeof AuthenticatedDataManagementRoute
+  AuthenticatedMessagesRoute: typeof AuthenticatedMessagesRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedAppsIndexRoute: typeof AuthenticatedAppsIndexRoute
   AuthenticatedChatsIndexRoute: typeof AuthenticatedChatsIndexRoute
@@ -416,6 +477,10 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSettingsRouteRoute: AuthenticatedSettingsRouteRouteWithChildren,
+  AuthenticatedAccountsRoute: AuthenticatedAccountsRoute,
+  AuthenticatedCampaignsRoute: AuthenticatedCampaignsRoute,
+  AuthenticatedDataManagementRoute: AuthenticatedDataManagementRoute,
+  AuthenticatedMessagesRoute: AuthenticatedMessagesRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedAppsIndexRoute: AuthenticatedAppsIndexRoute,
   AuthenticatedChatsIndexRoute: AuthenticatedChatsIndexRoute,
@@ -442,6 +507,10 @@ export interface FileRoutesByFullPath {
   '/404': typeof errors404Route
   '/500': typeof errors500Route
   '/503': typeof errors503Route
+  '/accounts': typeof AuthenticatedAccountsRoute
+  '/campaigns': typeof AuthenticatedCampaignsRoute
+  '/data-management': typeof AuthenticatedDataManagementRoute
+  '/messages': typeof AuthenticatedMessagesRoute
   '/': typeof AuthenticatedIndexRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
@@ -468,6 +537,10 @@ export interface FileRoutesByTo {
   '/404': typeof errors404Route
   '/500': typeof errors500Route
   '/503': typeof errors503Route
+  '/accounts': typeof AuthenticatedAccountsRoute
+  '/campaigns': typeof AuthenticatedCampaignsRoute
+  '/data-management': typeof AuthenticatedDataManagementRoute
+  '/messages': typeof AuthenticatedMessagesRoute
   '/': typeof AuthenticatedIndexRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
@@ -497,6 +570,10 @@ export interface FileRoutesById {
   '/(errors)/404': typeof errors404Route
   '/(errors)/500': typeof errors500Route
   '/(errors)/503': typeof errors503Route
+  '/_authenticated/accounts': typeof AuthenticatedAccountsRoute
+  '/_authenticated/campaigns': typeof AuthenticatedCampaignsRoute
+  '/_authenticated/data-management': typeof AuthenticatedDataManagementRoute
+  '/_authenticated/messages': typeof AuthenticatedMessagesRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/_authenticated/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
@@ -527,6 +604,10 @@ export interface FileRouteTypes {
     | '/404'
     | '/500'
     | '/503'
+    | '/accounts'
+    | '/campaigns'
+    | '/data-management'
+    | '/messages'
     | '/'
     | '/settings/account'
     | '/settings/appearance'
@@ -552,6 +633,10 @@ export interface FileRouteTypes {
     | '/404'
     | '/500'
     | '/503'
+    | '/accounts'
+    | '/campaigns'
+    | '/data-management'
+    | '/messages'
     | '/'
     | '/settings/account'
     | '/settings/appearance'
@@ -579,6 +664,10 @@ export interface FileRouteTypes {
     | '/(errors)/404'
     | '/(errors)/500'
     | '/(errors)/503'
+    | '/_authenticated/accounts'
+    | '/_authenticated/campaigns'
+    | '/_authenticated/data-management'
+    | '/_authenticated/messages'
     | '/_authenticated/'
     | '/_authenticated/settings/account'
     | '/_authenticated/settings/appearance'
@@ -654,6 +743,10 @@ export const routeTree = rootRoute
       "filePath": "_authenticated/route.tsx",
       "children": [
         "/_authenticated/settings",
+        "/_authenticated/accounts",
+        "/_authenticated/campaigns",
+        "/_authenticated/data-management",
+        "/_authenticated/messages",
         "/_authenticated/",
         "/_authenticated/apps/",
         "/_authenticated/chats/",
@@ -708,6 +801,22 @@ export const routeTree = rootRoute
     },
     "/(errors)/503": {
       "filePath": "(errors)/503.tsx"
+    },
+    "/_authenticated/accounts": {
+      "filePath": "_authenticated/accounts.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/campaigns": {
+      "filePath": "_authenticated/campaigns.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/data-management": {
+      "filePath": "_authenticated/data-management.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/messages": {
+      "filePath": "_authenticated/messages.tsx",
+      "parent": "/_authenticated"
     },
     "/_authenticated/": {
       "filePath": "_authenticated/index.tsx",
